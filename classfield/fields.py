@@ -1,6 +1,5 @@
 from django import VERSION as DJANGO_VERSION
 from django.db import models
-from django.db.models import SubfieldBase
 from django.utils.translation import ugettext_lazy as _
 from django.forms.fields import ChoiceField
 import six
@@ -29,10 +28,13 @@ class ClassFieldFakeRemoteField(object):
     parent_link = True
 
 
-class ClassField(
-    models.Field if DJANGO_VERSION >= (1, 8)
-    else six.with_metaclass(SubFieldBase, models.Field)
-):
+if DJANGO_VERSION >= (1, 8):
+    Field = models.Field
+else:
+    from django.db.models import SubfieldBase
+    Field = six.with_metaclass(SubFieldBase, models.Field)
+
+class ClassField(Field):
     """A field which can store and return a class.
 
     This is useful for improving models that have a 'type code smell'.
